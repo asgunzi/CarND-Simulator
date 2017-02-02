@@ -2,6 +2,7 @@
 Udacity nanodegree Project 3 - Behavior cloning
 Teaching a car to drive himself
 
+Full report at: https://medium.com/@arnaldogunzi/teaching-a-car-to-drive-himself-e9a2966571c5#.8rzolwdnl
 
 #Report on Udacity Project 3 — Behavior Cloning
 
@@ -44,10 +45,13 @@ Something easy for a human being (recognition of images and correspondent steeri
 
 Image recognition of non-structured files is a hard task for a computer.
 For us, it is almost impossible not to see an image and recognize what is inside it. But, for a computer, a image is just a bunch of numbers. More specifically, it is an array of numbers for 0 to 255, in the three channels (Red, Green, Blue), for each pixel of the image.
-A image to the computer
+
+![](https://cdn-images-1.medium.com/max/800/1*WU3SG3ZeZxGb8vnAJLlqQw.png)
 
 What are the relevant features of a image to decide the steering angle?
 Are the clouds in the sky relevant? Is the river important? Are the lanes important? Or the colors of the road? What happens in the part of the circuit where there are not lines (like the dirty exit below?). These are trivial questions for humans, but a machine must be trained to consider the right features.
+
+![](https://cdn-images-1.medium.com/max/800/1*VLuZ-pHIoYy-kY7cQfpxhQ.png)
 The unpaved road to the right  cause me a lot of trouble…
 
 The problem is hard. This tutorial is also extensive. Be comfortable to jump sessions if necessary.
@@ -66,6 +70,8 @@ The tools used were Keras (a wrapper running over Tensor Flow), OpenCV (to do so
 
 The first input are images of a camera inside the car. There are three cameras: center, left and right.
 
+![](https://cdn-images-1.medium.com/max/600/1*pyYePAXeavIA1ZNfpVQanQ.jpeg)
+![](https://cdn-images-1.medium.com/max/600/1*e1xgFWD1n-EmzJpBWfJCaw.jpeg)
 
 Example of center and left cameras 
  The second input is a csv file, each line containing the name of the correspondent image, steering angle, throttle, brake.
@@ -97,6 +103,8 @@ Following a suggestion from the great carND forum (by the way, almost all of the
 ##4.2 Flip images
 
  Another excellent tip. We can randomly choose to flip the image, and invert the steering angle. This way, we can neutralize some tendency of the human driver that drove a bit more to the left or to the right of the lane.
+ 
+![](https://cdn-images-1.medium.com/max/800/1*WEnZL4wa4b2jegcO-sTaew.png)
 
 
 Original and flipped image
@@ -105,6 +113,7 @@ Original and flipped image
  Y_in[i] = -p[i] #Flipped images
  
 Be carefill to use the function correctly. Flip with parameter zero will do a wrong thing.
+![](https://cdn-images-1.medium.com/max/800/1*kP-kJLmC3RCT5N02-AFAyg.png)
 Wrong flipping
 
 
@@ -116,7 +125,7 @@ The idea is to move to image a randomly a bit to the left or the right, and add 
  M = np.float32([[1,0,latShift],[0,1,0]])
  imgTranslated = cv2.warpAffine(img,M,(img.shape[1],img.shape[0]))
 
-
+![](https://cdn-images-1.medium.com/max/800/1*Nja-8EwSK3bc_HKuqrYCyw.png)
 Example of a exaggerated lateral Shift
 
 ##4.4 Resize
@@ -127,14 +136,14 @@ Because of computational limits, it is a good thing to resize the images, after 
 
 I also reduced the size of the stride of the convolutional layers. Since the image is smaller, the stride can also be smaller.
 
-
+![](https://cdn-images-1.medium.com/max/800/1*0Z3wZZ0SprS61V0RMrhYeg.png)
 X_in[i,:,:,0] = cv2.resize(imgScreenshots[i].squeeze(), (size2,size1))
 Some effects of resizeAll of these sizes work. An curious effect. When the image is smaller, the zig zag of the car is greater. Surely because there are fewer details in the image.
  
 ##4.5 Crop 
 The image was cropped to remove irrelevant portions of the image, like the sky, or the trees. Doing this, we’re assuming the camera is fixed in a stable position.
 
-
+![](https://cdn-images-1.medium.com/max/800/1*u-l8ti07RJNfT6s9yc86NQ.png)
 Effect of crop
 
 Because inside the model a image is just a matrix, a numpy command easily do this operation.
@@ -168,7 +177,8 @@ I used the conversion command of opencv to transform the image in RGB.
 
 
  imgOut = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) 
- 
+
+![](https://cdn-images-1.medium.com/max/800/1*bwzxzc4I0Ue4p6LTjhkJ4Q.png)
 The model used full color RGB. In addition to it, I used a first layer of the NN that just transform the 3 color channels in 1 channel, with the ponderation Keras chooses, instead of me choosing the right channel.
  
 
@@ -199,6 +209,7 @@ Once the image processing and augmentation is done, it is time to design the Neu
 As a starting point, I used the NVIDIA End-to-End model (https://arxiv.org/abs/1604.07316), that has the configuration described below.
 
 
+![](https://cdn-images-1.medium.com/max/800/1*YY8LNITxGOo37NQD05mJqA.png)
 
 We can broadly describe the tasks of the NN in two: recognize relevant features and predict the steering angle.
 The recognition of features is carried by convolutional layer
@@ -210,6 +221,7 @@ Each convolutional layer is a level of abstraction above the previous layer. As 
 
 It is important to stress that we do not give the explicit features the image has to recognize. It is automatically done by the back-propagation of the neural network. It has some pros and cons. The pro is that we just feed the network. The con is that if it not work, we don’t have idea of why it didn’t work — is the network too small? Too big?
 
+![](https://cdn-images-1.medium.com/max/800/1*ZCjPUFrB6eHPRi4eyP6aaA.gif)
 
 Given the features, how to decide about the steering angle?
 
@@ -257,6 +269,7 @@ A learning rate of 0.001 was used, with Adam optimizer. Adam optimizer is a good
 
 Source: https://www.quora.com/In-an-artificial-neural-network-algorithm-what-happens-if-my-learning-rate-is-wrong-too-high-or-too-lowToo small learning rate, and the model will not learn. Too big, and it will diverge. It remembers me a passage from Sun Tzu, something like this: If the front troops go to fast, the rear troops will be separated. If everyone goes too slow, we’ll not reach our destination.
 
+![](https://cdn-images-1.medium.com/max/800/1*85csiWJcBFHw6pKkwOoHKA.png)
 
 ##5.6 Activation function
 I tried tanh, because it has output range from -1 to 1. But there were convergence problems. The evidence of it was that the car had zero degree output. Or only 25 degree output. This is the vanishing gradient phenomena, where the gradient in the backpropagation process comes to zero and the neuron dies.
@@ -401,7 +414,11 @@ In the college were I was graduated, nobody cheated. It was the honor code of th
 
 # 8. Conclusion
 Here is the Github link of this project. https://github.com/asgunzi/CarND-Simulator
+
 And here is a video of the car performing the circuit. It still zig-zags a bit.
+
+https://youtu.be/QtAVSAURf-0
+
 Teaching a car to drive, even in a controlled, very simplified environment, is not an easy task. The tools and techniques presented are very new. TensorFlow was released in dez 2015, for example.
 
 Perhaps the task of driving is not easy, even for a human. I took almost one year to learn to drive: get used to the car, learn rules and so on.
